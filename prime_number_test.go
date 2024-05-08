@@ -1,6 +1,7 @@
 package math
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -120,6 +121,69 @@ func TestIsPrime(t *testing.T) {
 
 			if diff := cmp.Diff(v2.want, IsPrime(v2.val)); diff != "" {
 				t.Errorf("IsPrime() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestGoldbachConjecture(t *testing.T) {
+	t.Parallel()
+
+	for _, v := range []struct {
+		name  string
+		val   int
+		want1 int
+		want2 int
+		err   error
+	}{
+		{
+			name:  "success 1",
+			val:   4,
+			want1: 2,
+			want2: 2,
+		},
+		{
+			name:  "success 2",
+			val:   108,
+			want1: 47,
+			want2: 61,
+		},
+		{
+			name: "even number less than or equal to 3",
+			val:  2,
+			err:  ErrGoldbachConjecture,
+		},
+		{
+			name: "3",
+			val:  3,
+			err:  ErrGoldbachConjecture,
+		},
+		{
+			name: "Odd prime number greater than 3",
+			val:  5,
+			err:  ErrGoldbachConjecture,
+		},
+		{
+			name: "Odd non-prime number greater than 3",
+			val:  9,
+			err:  ErrGoldbachConjecture,
+		},
+	} {
+		v2 := v
+		t.Run(v2.name, func(t *testing.T) {
+			t.Parallel()
+
+			val1, val2, err := GoldbachConjecture(v.val)
+			if diff := cmp.Diff(v2.want1, val1); diff != "" {
+				t.Errorf("GoldbachConjecture() mismatch1 (-want +got):\n%s", diff)
+			}
+			if diff := cmp.Diff(v2.want2, val2); diff != "" {
+				t.Errorf("GoldbachConjecture() mismatch2 (-want +got):\n%s", diff)
+			}
+			if v2.err != nil {
+				if !errors.Is(err, v2.err) {
+					t.Error(err)
+				}
 			}
 		})
 	}

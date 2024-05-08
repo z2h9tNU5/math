@@ -1,7 +1,12 @@
 package math
 
 import (
+	"fmt"
 	"math/big"
+)
+
+var (
+	ErrGoldbachConjecture = fmt.Errorf("must be an even number greater than 3")
 )
 
 // SieveEratosthenes returns an array indicating whether the number is prime or not,
@@ -52,18 +57,21 @@ func IsPrime(n int64) bool {
 }
 
 // GoldbachConjecture returns two prime numbers.
-// 　The sum of its prime numbers is the same as the argument.
+// The sum of its prime numbers is the same as the argument.
 // If there are multiple patterns, the one with the largest product is returned.
-// If the argument is prime, returns 0 and the value of the argument.
 // This does not prove the Goldbach conjecture.
-func GoldbachConjecture(n int) (int, int) {
+func GoldbachConjecture(n int) (int, int, error) {
+	if n <= 3 || n%2 != 0 {
+		return 0, 0, ErrGoldbachConjecture
+	}
+
 	se := SieveEratosthenes(n)
 
 	m := map[int]int{}
 	for i, v := range se {
 		if !v {
 			if i == n {
-				return 0, i
+				return 0, i, nil
 			}
 
 			num := n - i
@@ -83,8 +91,8 @@ func GoldbachConjecture(n int) (int, int) {
 	}
 
 	if res > m[res] {
-		return m[res], res
+		return m[res], res, nil
 	} else {
-		return res, m[res]
+		return res, m[res], nil
 	}
 }
